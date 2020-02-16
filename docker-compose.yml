@@ -1,0 +1,10 @@
+version: "3"
+services:
+  ubuntu:
+    container_name: build_ubuntu
+    build:
+      context: .
+    volumes:
+      - ./9cc:/9cc
+    working_dir: /9cc
+    command: /bin/bash -c 'while true; do sleep 1; done'
