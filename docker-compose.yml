@@ -2,11 +2,11 @@ version: "3"
 services:
   ubuntu:
     container_name: build_ubuntu
-    build:
-      context: .
+    image: kabosu910/9cc:latest
     volumes:
       - ./9cc:/9cc
     working_dir: /9cc
     environment: 
       TZ: Asia/Tokyo
-    command: /bin/bash -c 'while true; do sleep 1; done'
+    platform: "linux/amd64"
+    tty: true
