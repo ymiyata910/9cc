@@ -1,6 +1,8 @@
 #include "9cc.h"
 
+Node *stmt();
 Node *expr();
+Node *assign();
 Node *equality();
 Node *relational();
 Node *add();
@@ -17,6 +19,16 @@ bool consume(char *op) {
 		return false;
 	token = token->next;
 	return true;
+}
+
+Token *consume_ident() {
+	if (token->kind == TK_IDENT)
+		return token;
+	return NULL;
+}
+
+bool at_eof() {
+	return token->kind == TK_EOF;
 }
 
 // 次のトークンが期待している記号のときには、トークンを1つ読み進める。
@@ -55,8 +67,21 @@ Node *new_node_num(int val) {
 	return node;
 }
 
+Node *stmt() {
+	Node *node = expr();
+	expect(";");
+	return node;
+}
+
 Node *expr() {
-	return equality();
+	return assign();
+}
+
+Node *assign() {
+	Node *node = equality();
+	if (consume("="))
+		node = new_node(ND_ASSIGN, node, assign());
+	return node;
 }
 
 Node *equality() {
@@ -131,10 +156,22 @@ Node *primary() {
 		return node;
 	}
 
+	Token *tok = consume_ident();
+	if (tok) {
+		Node *node = calloc(1, sizeof(Node));
+		node->kind = ND_LVAR;
+		node->offset = (tok->str[0] - 'a' + 1) * 8;
+		token = token->next;
+		return node;
+	}
+
 	// そうでなければ数値のはず
 	return new_node_num(expect_number());
 }
 
-Node *parse() {
-	return expr();
+void program() {
+	int i = 0;
+	while (!at_eof())
+		code[i++] = stmt();
+	code[i] = NULL;
 }

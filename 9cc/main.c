@@ -4,15 +4,16 @@
 char *user_input;
 // 現在着目しているトークン
 Token *token;
+Node *code[100];
 
 int main(int argc, char **argv) {
 	if (argc != 2)
-		error_at(token->str, "引数の個数が正しくありません");
+		error("引数の個数が正しくありません");
 
 	user_input = argv[1];
-	token = tokenize(user_input);
-	Node *node = parse();
-	codegen(node);
+	tokenize();
+	program();
+	codegen();
 
 	return 0;
 }

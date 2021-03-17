@@ -1,5 +1,13 @@
 #include "9cc.h"
 
+void error(char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	fprintf(stderr, "\n");
+	exit(1);
+}
+
 // エラーを報告するための関数
 void error_at(char *loc, char *fmt, ...) {
 	va_list ap;
@@ -29,10 +37,11 @@ bool startswith(char *p, char *q) {
 }
 
 // 入力文字列pをトークナイズしてそれを返す
-Token *tokenize(char *p) {
+void tokenize() {
 	Token head;
 	head.next = NULL;
 	Token *cur = &head;
+	char *p = user_input;
 
 	while (*p) {
 		// 空白文字をスキップ
@@ -48,8 +57,13 @@ Token *tokenize(char *p) {
 			continue;
 		}
 
-		if (strchr("+-*/()<>", *p)) {
+		if (strchr("+-*/()<>=;", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
+			continue;
+		}
+
+		if ('a' <= *p && *p <= 'z') {
+			cur = new_token(TK_IDENT, cur, p++, 1);
 			continue;
 		}
 
@@ -61,9 +75,9 @@ Token *tokenize(char *p) {
 			continue;
 		}
 
-		error_at(token->str, "トークナイズできません");
+		error("トークナイズできません");
 	}
 
 	new_token(TK_EOF, cur, p, 0);
-	return head.next;
+	token = head.next;
 }
